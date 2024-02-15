@@ -42,43 +42,70 @@ public class Controller {
 
     //Метод получения списка сотрудников по стажу
     private static List<Employee> getEmployeeByExperience() {
-        List<Employee> employeesExp = new ArrayList<>();
-        System.out.println("Введите стаж искомого сотрудника (кол-во месяцев):");
-        Scanner scan = new Scanner(System.in);
-        int exp = scan.nextInt();
-        for (Employee employee : employees) {
-            if (employee.getExperienceInMonths() == exp) {
-                employeesExp.add(employee);
+        try {
+            List<Employee> employeesExp = new ArrayList<>();
+            System.out.println("Введите стаж искомого сотрудника (кол-во месяцев):");
+            Scanner scan = new Scanner(System.in);
+            int exp = scan.nextInt();
+            if (exp < 0) {
+                throw new RuntimeException();
             }
+            for (Employee employee : employees) {
+                if (employee.getExperienceInMonths() == exp) {
+                    employeesExp.add(employee);
+                }
+            }
+            return employeesExp;
+        } catch (InputMismatchException e) {
+            System.out.println("Стаж должен быть в цифровом формате, повторите ввод");
+            return getEmployeeByExperience();
+        } catch (RuntimeException e) {
+            System.out.println("Стаж не должен быть отрицательным, повторите ввод");
+            return getEmployeeByExperience();
         }
-        return employeesExp;
     }
 
     //Метод получения списка телефонов сотрудников по имени
     private static List<String> getEmployeePhoneByName() {
-        List<String> employeesPhones = new ArrayList<>();
-        System.out.println("Введите имя искомого сотрудника:");
-        Scanner scan = new Scanner(System.in);
-        String name = scan.next();
-        for (Employee employee : employees) {
-            if (employee.getName().equals(name)) {
-                employeesPhones.add(employee.getPhoneNumber());
+        try {
+            List<String> employeesPhones = new ArrayList<>();
+            System.out.println("Введите имя искомого сотрудника:");
+            Scanner scan = new Scanner(System.in);
+            String name = scan.next();
+            if (!Pattern.matches("[a-zA-Zа-яА-Я]+", name)) {
+                throw new RuntimeException();
             }
+            for (Employee employee : employees) {
+                if (employee.getName().equals(name)) {
+                    employeesPhones.add(employee.getPhoneNumber());
+                }
+            }
+            return employeesPhones;
+        } catch (RuntimeException e) {
+            System.out.println("Имя сотрудника должно быть в текстовом формате, повторите ввод");
+            return getEmployeePhoneByName();
         }
-        return employeesPhones;
     }
 
     //Метод получения сотрудника по табельному номеру
     private static Employee getEmployeeById() {
-        System.out.println("Введите id искомого сотрудника:");
-        Scanner scan = new Scanner(System.in);
-        int identify = scan.nextInt();
-        for (Employee employee : employees) {
-            if (employee.getId() == identify) {
-                return employee;
+        try {
+            System.out.println("Введите id искомого сотрудника:");
+            Scanner scan = new Scanner(System.in);
+            int identify = scan.nextInt();
+            if (identify < 0) {
+                throw new InputMismatchException();
             }
+            for (Employee employee : employees) {
+                if (employee.getId() == identify) {
+                    return employee;
+                }
+            }
+            return null;
+        } catch (InputMismatchException e) {
+            System.out.println("Данные должны быть в цифровом формате и больше нуля, повторите ввод");
+            return getEmployeeById();
         }
-        return null;
     }
 
     //Метод добавления нового сотрудника в справочник
@@ -87,7 +114,7 @@ public class Controller {
             System.out.println("Введите табельный номер нового сотрудника:");
             Scanner scan = new Scanner(System.in);
             int employeeId = scan.nextInt();
-            if (employeeId < 1) {
+            if (employeeId < 0) {
                 throw new InputMismatchException();
             }
             for (Employee item : employees) {
